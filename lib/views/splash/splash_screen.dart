@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:grocery_user_student/views/onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,12 +11,17 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
-   Timer(Duration(seconds: 3), () {
-     // Navigate to Onboarding screen
-   });
+    Timer(const Duration(seconds: 3), () {
+      // Navigate to Onboarding screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const OnBoardingScreen(),
+        ),
+      );
+    });
     super.initState();
   }
 

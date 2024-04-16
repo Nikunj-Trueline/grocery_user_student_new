@@ -5,7 +5,7 @@ import 'package:grocery_user_student/views/splash/splash_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-      options: const  FirebaseOptions(
+      options: const FirebaseOptions(
           apiKey: "AIzaSyCAUD-Jz-KfnvPMsW5I3SvGNm_y9f_s42U",
           appId: "1:946862308565:android:c0df65950d720a6970b65c",
           messagingSenderId: "946862308565",

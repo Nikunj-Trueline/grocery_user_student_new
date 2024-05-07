@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grocery_user_student/views/home/home_screen.dart';
 import 'package:grocery_user_student/views/onboarding/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,16 +13,29 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  var user = FirebaseAuth.instance.currentUser;
+
+
   @override
   void initState() {
     Timer(const Duration(seconds: 3), () {
       // Navigate to Onboarding screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const OnBoardingScreen(),
-        ),
-      );
+    //  print(user!.phoneNumber);
+      if (user != null) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+            (route) => false);
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OnBoardingScreen(),
+          ),
+        );
+      }
     });
     super.initState();
   }

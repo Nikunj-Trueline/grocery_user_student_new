@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grocery_user_student/firebase/firebase_servicies.dart';
+import 'package:grocery_user_student/views/home/home_screen.dart';
 import 'package:grocery_user_student/views/register/register_screen.dart';
 import 'package:grocery_user_student/widgets/custom_button.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -69,7 +71,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     title: "Verify and Continue",
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    callback: () {
+                    callback: () async {
                       if (formKey.currentState!.validate()) {
                         setState(() {
                           isLoading = true;
@@ -80,18 +82,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   verificationId: widget.verificationId,
                                   smsCode: otpController.text.toString());
 
-                          FirebaseAuth.instance.signInWithCredential(phoneauthcredential).then((value){
-                            if (phoneauthcredential != null) {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RegisterScreen(),
-                                  ));
-                            }
-                          });
+                          //  find usercredential
 
+                          var user = await FirebaseAuth.instance
+                              .signInWithCredential(phoneauthcredential);
 
-
+                          onSuccess(user);
                         } catch (e) {
                           log(e.toString());
                         }
@@ -104,5 +100,33 @@ class _VerificationScreenState extends State<VerificationScreen> {
         ),
       ),
     );
+  }
+
+  void onSuccess(UserCredential userCredential) {
+    try {
+      FirebaseServicies()
+          .userExistOrNot(id: userCredential.user!.uid)
+          .then((value) {
+        if (value != null) {
+          if (value) {
+            // navigate to homescreen
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
+                ));
+          } else {
+            // Navigate to Register screen
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RegisterScreen(),
+                ));
+          }
+        }
+      });
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }

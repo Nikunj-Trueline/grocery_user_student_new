@@ -31,4 +31,27 @@ class FirebaseServicies {
       return false;
     }
   }
+
+  // create method for check user alredy exist or not.
+
+     Future<bool?> userExistOrNot({required String id})
+     async {
+
+
+         try{
+            var snapshot = await firebaseDatabase.ref().child('Users').child(id).get();
+
+            if(snapshot.exists)
+              {
+                return true;
+              }else{
+              return false;
+            }
+
+
+         }catch(e)
+       {
+         log(e.toString());
+       }
+     }
 }

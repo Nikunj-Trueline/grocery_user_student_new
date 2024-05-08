@@ -107,7 +107,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
       FirebaseServicies()
           .userExistOrNot(id: userCredential.user!.uid)
           .then((value) {
-        if (value != null) {
           if (value) {
             // navigate to homescreen
             Navigator.push(
@@ -123,7 +122,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   builder: (context) => RegisterScreen(),
                 ));
           }
-        }
+
       });
     } catch (e) {
       log(e.toString());

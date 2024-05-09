@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:grocery_user_student/firebase/firebase_servicies.dart';
 import 'package:grocery_user_student/model/user_model.dart';
 import 'package:grocery_user_student/widgets/custom_button.dart';
-import '../home/home_screen.dart';
+
+import '../Dashboard/home_screen.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

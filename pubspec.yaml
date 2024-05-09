@@ -40,6 +40,7 @@ dependencies:
   firebase_storage:
   firebase_database:
   pin_code_fields:
+  shimmer:
 
 dev_dependencies:
   flutter_test:

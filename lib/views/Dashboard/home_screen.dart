@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_user_student/views/Dashboard/account/account_screen.dart';
-import 'package:grocery_user_student/views/Dashboard/cartscreen/cart_screen.dart';
-import 'package:grocery_user_student/views/Dashboard/favouritescreen/favourite_screen.dart';
-import 'package:grocery_user_student/views/Dashboard/shopscreen/shop_screen.dart';
+import 'package:grocery_user_student/views/Dashboard/shop/shop_screen.dart';
+
+import 'carts/cart_screen.dart';
+import 'favourite/favourite_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
               currentIndex = value;
             });
           },
+          selectedItemColor: Colors.amber,
+          unselectedItemColor: Colors.black,
+          elevation: 10,
+          iconSize: 30,
           selectedIconTheme: const IconThemeData(
             color: Colors.amber
           ),
@@ -38,13 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black
           ),
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.shop), label: "Shop"),
+            BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: "Shop"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.favorite), label: "favourite"),
+                icon: Icon(Icons.bookmark_border), label: "Favourite"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.card_travel), label: "Cart"),
+                icon: Icon(Icons.shopping_cart_outlined), label: "Cart"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.manage_accounts), label: "Account")
+                icon: Icon(Icons.account_circle_outlined), label: "Account")
           ],
           currentIndex: currentIndex),
     );

@@ -1,12 +1,11 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_user_student/firebase/firebase_servicies.dart';
-import 'package:grocery_user_student/views/home/home_screen.dart';
 import 'package:grocery_user_student/views/register/register_screen.dart';
 import 'package:grocery_user_student/widgets/custom_button.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import '../Dashboard/home_screen.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String verificationId;
@@ -108,7 +107,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           .userExistOrNot(id: userCredential.user!.uid)
           .then((value) {
           if (value) {
-            // navigate to homescreen
+            // navigate to homeScreen
             Navigator.push(
                 context,
                 MaterialPageRoute(

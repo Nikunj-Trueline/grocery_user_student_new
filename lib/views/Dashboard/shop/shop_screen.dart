@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_user_student/model/product_model.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../firebase/firebase_servicies.dart';
 import '../../../model/category_model.dart';
 
@@ -37,6 +37,17 @@ class _ShopScreenState extends State<ShopScreen> {
                   ),
                 ),
                 _buildHorizontalCategory(),
+                const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text(
+                    "Top Selling Products.",
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                buildTopSellingProductGrid(),
               ],
             ),
           ),
@@ -90,15 +101,10 @@ class _ShopScreenState extends State<ShopScreen> {
                   );
                 });
           } else if (snapshot.hasData) {
-
-
-
-
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-
                 final category = snapshot.data![index];
 
                 return Container(
@@ -131,5 +137,80 @@ class _ShopScreenState extends State<ShopScreen> {
         },
       ),
     );
+  }
+
+  Widget buildTopSellingProductGrid() {
+    return StreamBuilder(
+        stream: FirebaseServicies().topSellingProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            print("111111111111111");
+            return GridView.builder(
+              itemCount: 6,
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 20),
+              itemBuilder: (context, index) {
+                return Shimmer.fromColors(
+                    baseColor: Colors.grey,
+                    highlightColor: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 100,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white70),
+                        padding: const EdgeInsets.all(5),
+                      ),
+                    ));
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Container();
+          } else if (snapshot.hasData) {
+            List<Product> data = snapshot.data!;
+
+            print(snapshot.data!.length);
+
+            return GridView.builder(
+              itemCount: snapshot.data!.length,
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 20),
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 100,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white70),
+                    padding: const EdgeInsets.all(5),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: Image(
+                            image: NetworkImage(data[index].imageUrl),
+                            height: 50,
+                            width: 50,
+                          ),
+                        ),
+                        SizedBox(height: 5,),
+                        Text("Name : ${data[index].name}"),
+                        SizedBox(height: 5,),
+                        Text("Price : ${data[index].price}")
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            return Container();
+          }
+        });
   }
 }

@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:grocery_user_student/model/category_model.dart';
+import 'package:grocery_user_student/model/product_model.dart';
 import 'package:grocery_user_student/model/user_model.dart';
 
 class FirebaseServicies {
@@ -77,8 +78,6 @@ class FirebaseServicies {
       DataSnapshot dataSnapshot =
           await firebaseDatabase.ref().child("Users").child(user).get();
 
-      print(dataSnapshot.value);
-
       UserData userData = UserData.fromJson(dataSnapshot.value);
 
       return userData;
@@ -86,5 +85,29 @@ class FirebaseServicies {
       log(e.toString());
       return null;
     }
+  }
+
+  Stream<List<Product>> topSellingProducts() {
+    return firebaseDatabase
+        .ref()
+        .child("Products")
+        .orderByChild("inTop")
+        .equalTo(true)
+        .onValue
+        .map((event) {
+      List<Product> productList = [];
+
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> topSelling =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        topSelling.forEach((key, value) {
+          Product product = Product.fromJson(value);
+          productList.add(product);
+        });
+      }
+
+      return productList;
+    });
   }
 }

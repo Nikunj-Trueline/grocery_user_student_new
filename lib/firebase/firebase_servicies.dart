@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:grocery_user_student/model/cart_model.dart';
 import 'package:grocery_user_student/model/category_model.dart';
 import 'package:grocery_user_student/model/product_model.dart';
 import 'package:grocery_user_student/model/user_model.dart';
@@ -109,5 +111,115 @@ class FirebaseServicies {
 
       return productList;
     });
+  }
+
+  Stream<List<Product>> getAllProductParticularCategory(
+      {required String categoryId}) {
+    return firebaseDatabase
+        .ref()
+        .child("Products")
+        .orderByChild("categoryId")
+        .equalTo(categoryId)
+        .onValue
+        .map((event) {
+      List<Product> productList = [];
+
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> productMap =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        productMap.forEach((key, value) {
+          Product product = Product.fromJson(value);
+          productList.add(product);
+        });
+      }
+
+      return productList;
+    });
+  }
+
+  Future<void> addToProductInCart(
+      {required Product product,
+      required int quantity,
+      required BuildContext context}) async {
+    try {
+      String userId = firebaseAuth.currentUser!.uid;
+
+      DatabaseReference ref = firebaseDatabase
+          .ref()
+          .child("UserCart")
+          .child(userId)
+          .child("Products")
+          .child(product.id!);
+
+      DataSnapshot snapshot = await ref.get();
+
+      if (snapshot.exists) {
+        ref.update({
+          "quantity": quantity,
+          "totalPrice": (quantity * product.price).toDouble()
+        });
+      } else {
+        Cart cart = Cart(
+            id: product.id!,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            quantity: quantity,
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+            totalPrice: (quantity * product.price).toDouble());
+
+        ref.set(cart.toJson());
+
+        log("Product successfully add into cart");
+      }
+
+      Navigator.pop(context);
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Stream<List<Cart>> productGetFromCart() {
+    String userId = firebaseAuth.currentUser!.uid;
+
+    return firebaseDatabase
+        .ref()
+        .child("UserCart")
+        .child(userId)
+        .child("Products")
+        .onValue
+        .map((event) {
+      List<Cart> cartList = [];
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic> cartMap =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        cartMap.forEach((key, value) {
+          Cart cart = Cart.fromJson(value);
+
+          cartList.add(cart);
+        });
+      }
+
+      return cartList;
+    });
+  }
+
+  void removeProductFromCart({required String productId}) {
+    String userId = firebaseAuth.currentUser!.uid;
+
+    try {
+      firebaseDatabase
+          .ref()
+          .child("UserCart")
+          .child(userId)
+          .child("Products")
+          .child(productId)
+          .remove();
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }

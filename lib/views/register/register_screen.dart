@@ -144,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             (route) => false);
       }
     } catch (e) {
+      print("1111111111111111111111111");
       log(e.toString());
     } finally {
       setState(() {

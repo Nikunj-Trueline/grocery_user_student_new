@@ -53,7 +53,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       fontSize: 20,
                     ),
                   ),
-                  subtitle: Text('Contact : ${userData!.contact}'),
+                  subtitle: Text('Contact : ${userData.contact}'),
                   trailing: IconButton(
                     onPressed: () async {},
                     icon: const Icon(Icons.edit),

@@ -222,4 +222,56 @@ class FirebaseServicies {
       log(e.toString());
     }
   }
+
+  void updateCartProduct({required String cartId, required Cart cart}) {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+
+      firebaseDatabase
+          .ref()
+          .child("UserCart")
+          .child(userId)
+          .child("Products")
+          .child(cartId)
+          .update(cart.toJson());
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Stream<List<Cart>> cartItemsForTotalPrice() {
+
+    String userId = firebaseAuth.currentUser!.uid;
+    print(userId);
+
+
+    return firebaseDatabase
+        .ref()
+        .child("UserCart")
+        .child(userId)
+        .child("Products")
+        .onValue
+        .map((event) {
+
+
+      List<Cart> cartList = [];
+
+
+
+      if (event.snapshot.exists) {
+
+
+        Map<dynamic, dynamic> cartMap =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        print("This is cartMap ");
+        print(cartMap);
+
+        cartMap.forEach((key, value) {
+          Cart cart = Cart.fromJson(value);cartList.add(cart);
+        });
+      }
+      return cartList;
+    });
+  }
 }

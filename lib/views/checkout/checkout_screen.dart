@@ -1,57 +1,71 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_user_student/firebase/firebase_servicies.dart';
-import 'package:grocery_user_student/views/checkout/checkout_screen.dart';
+import 'package:grocery_user_student/widgets/custom_button.dart';
 
-import '../../../model/cart_model.dart';
+import '../../model/cart_model.dart';
 
-class CartScreen extends StatefulWidget {
-  const CartScreen({super.key});
+class CheckOutScreen extends StatefulWidget {
+  const CheckOutScreen({super.key});
 
   @override
-  State<CartScreen> createState() => _CartScreenState();
+  State<CheckOutScreen> createState() => _CheckOutScreenState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class _CheckOutScreenState extends State<CheckOutScreen> {
+  double totalPrice = 0.0;
+
+
+  @override
+  void initState() {
+    calculateTotalPrice();
+    super.initState();
+  }
+
+  Future<void> calculateTotalPrice() async {
+
+    print("11111111111111111111");
+
+
+        FirebaseServicies().cartItemsForTotalPrice();
+
+
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Cart Screen")),
+      appBar: AppBar(title: Text("CheckOut Screen")),
       body: StreamBuilder(
         stream: FirebaseServicies().productGetFromCart(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
+            return Center(child: Text(snapshot.error.toString()));
           } else if (snapshot.hasData) {
             return _buildCartList(snapshot.data!);
           } else {
-            return const Center(
-              child: Text("No Cart Product Found"),
-            );
+            return Container();
           }
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Colors.amber,
-          foregroundColor: Colors.white,
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CheckOutScreen(),
-                ));
-          },
-          label: const Text("CheckOut"),
-          icon: const Icon(Icons.shopping_basket)),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: CustomButton(
+            title: "PlaceOrder : $totalPrice",
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            callback: () {},
+            isLoading: false),
+      ),
     );
   }
 
   Widget _buildCartList(List<Cart> cartItems) {
+    // cartList = cartItems;
     return ListView.builder(
       padding: const EdgeInsets.all(15),
       itemCount: cartItems.length,
@@ -85,20 +99,10 @@ class _CartScreenState extends State<CartScreen> {
                                   fontWeight: FontWeight.bold, fontSize: 18),
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              FirebaseServicies().removeProductFromCart(
-                                  productId: cartItems[index].id);
-                            },
-                            icon: const Icon(
-                              Icons.cancel_presentation_sharp,
-                              color: Colors.grey,
-                            ),
-                          )
                         ],
                       ),
                       Text(
-                        "${cartItems[index].totalPrice}",
+                        "${cartItems[index].price}",
                         style:
                             const TextStyle(fontSize: 14, color: Colors.grey),
                       ),
@@ -119,23 +123,26 @@ class _CartScreenState extends State<CartScreen> {
                               child: const Icon(Icons.remove),
                             ),
                             onTap: () {
-                              updateQuantity(cartItem, isQuantity: false);
+                              // _updateQuantity(cartItem, isIncrement: false);
                             },
                           ),
                           const SizedBox(
-                            width: 20,
+                            width: 10,
                           ),
                           Center(
                             child: Text(
                               "${cartItem.quantity}",
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
+                                  fontWeight: FontWeight.w500, fontSize: 18),
                             ),
                           ),
                           const SizedBox(
-                            width: 20,
+                            width: 10,
                           ),
                           InkWell(
+                            onTap: () {
+                              // _updateQuantity(cartItem, isIncrement: true);
+                            },
                             child: Container(
                               height: 40,
                               width: 40,
@@ -148,11 +155,12 @@ class _CartScreenState extends State<CartScreen> {
                                 color: Colors.green,
                               ),
                             ),
-                            onTap: () {
-                              updateQuantity(cartItem, isQuantity: true);
-                            },
                           ),
                           Expanded(child: Container()),
+                          Text(
+                            "Rs. ${cartItem.totalPrice.toStringAsFixed(2)}",
+                            style: const TextStyle(fontSize: 16),
+                          )
                         ],
                       )
                     ],
@@ -164,21 +172,5 @@ class _CartScreenState extends State<CartScreen> {
         );
       },
     );
-  }
-
-  void updateQuantity(Cart cart, {required bool isQuantity}) {
-    if (isQuantity) {
-      cart.quantity++;
-    } else {
-      if (cart.quantity > 1) {
-        cart.quantity--;
-      }
-    }
-    setState(() {
-      cart.totalPrice = cart.quantity * cart.price;
-      print(cart.totalPrice);
-    });
-
-    FirebaseServicies().updateCartProduct(cartId: cart.id, cart: cart);
   }
 }

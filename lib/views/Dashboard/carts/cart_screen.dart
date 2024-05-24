@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_user_student/firebase/firebase_servicies.dart';
 import 'package:grocery_user_student/views/checkout/checkout_screen.dart';
-
 import '../../../model/cart_model.dart';
 
 class CartScreen extends StatefulWidget {

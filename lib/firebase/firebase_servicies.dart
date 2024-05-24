@@ -2,10 +2,13 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:grocery_user_student/model/address_model.dart';
 import 'package:grocery_user_student/model/cart_model.dart';
 import 'package:grocery_user_student/model/category_model.dart';
 import 'package:grocery_user_student/model/product_model.dart';
 import 'package:grocery_user_student/model/user_model.dart';
+
+import '../model/orders.dart';
 
 class FirebaseServicies {
   static final FirebaseServicies instance = FirebaseServicies.named();
@@ -239,39 +242,131 @@ class FirebaseServicies {
     }
   }
 
-  Stream<List<Cart>> cartItemsForTotalPrice() {
+  // Stream<List<Cart>> cartItemsForTotalPrice() {
+  //
+  //   String userId = firebaseAuth.currentUser!.uid;
+  //   print(userId);
+  //
+  //
+  //   return firebaseDatabase
+  //       .ref()
+  //       .child("UserCart")
+  //       .child(userId)
+  //       .child("Products")
+  //       .onValue
+  //       .map((event) {
+  //
+  //
+  //     List<Cart> cartList = [];
+  //
+  //
+  //
+  //     if (event.snapshot.exists) {
+  //
+  //
+  //       Map<dynamic, dynamic> cartMap =
+  //           event.snapshot.value as Map<dynamic, dynamic>;
+  //
+  //       print("This is cartMap ");
+  //       print(cartMap);
+  //
+  //       cartMap.forEach((key, value) {
+  //         Cart cart = Cart.fromJson(value);cartList.add(cart);
+  //       });
+  //     }
+  //     return cartList;
+  //   });
+  // }
+
+  Future<List<Cart>> getTotalPriceForCheckOut() async {
+    print("11111111111111112222222221111");
 
     String userId = firebaseAuth.currentUser!.uid;
-    print(userId);
 
+    List<Cart> cartListForPrice = [];
 
-    return firebaseDatabase
+    DatabaseReference reference = firebaseDatabase
         .ref()
         .child("UserCart")
         .child(userId)
-        .child("Products")
+        .child("Products");
+
+    DataSnapshot snapshot = await reference.get();
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> totalPriceMap =
+          snapshot.value as Map<dynamic, dynamic>;
+
+      print(totalPriceMap);
+
+      totalPriceMap.forEach((key, value) {
+        Cart cart = Cart.fromJson(value);
+        cartListForPrice.add(cart);
+      });
+    }
+
+    return cartListForPrice;
+  }
+
+  Future<void> saveAddressInDatabase(Address address) async {
+    try {
+      String userId = firebaseAuth.currentUser!.uid;
+
+      DatabaseReference database = FirebaseDatabase.instance
+          .ref()
+          .child("UserAddress")
+          .child(userId)
+          .child("Address");
+
+      String? addressId = database.push().key;
+
+      address.id = addressId!;
+
+      await database.child(addressId).set(address.toJson());
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Stream<List<Address>> getAllAddress() {
+    String userId = firebaseAuth.currentUser!.uid;
+   return  firebaseDatabase
+        .ref()
+        .child("UserAddress")
+        .child(userId)
+        .child("Address")
         .onValue
         .map((event) {
-
-
-      List<Cart> cartList = [];
-
-
+      List<Address> addressList = [];
 
       if (event.snapshot.exists) {
-
-
-        Map<dynamic, dynamic> cartMap =
+        Map<dynamic, dynamic> addressMap =
             event.snapshot.value as Map<dynamic, dynamic>;
 
-        print("This is cartMap ");
-        print(cartMap);
-
-        cartMap.forEach((key, value) {
-          Cart cart = Cart.fromJson(value);cartList.add(cart);
+        addressMap.forEach((key, value) {
+          Address address = Address.fromJson(value);
+          addressList.add(address);
         });
       }
-      return cartList;
+
+      return addressList;
     });
+  }
+
+  Future<void> placeOrder(Order order) async {
+    String? id = firebaseDatabase.ref().child('Orders').push().key;
+    order.orderId = id;
+    if (id != null) {
+      await firebaseDatabase
+          .ref()
+          .child('Orders')
+          .child(id)
+          .set(order.toJson());
+      await firebaseDatabase
+          .ref()
+          .child('UserCart')
+          .child(order.userId!)
+          .remove();
+    }
   }
 }

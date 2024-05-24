@@ -1,6 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_user_student/firebase/firebase_servicies.dart';
+import 'package:grocery_user_student/model/order_data.dart';
+import 'package:grocery_user_student/views/addresslist/addresslist_screen.dart';
 import 'package:grocery_user_student/widgets/custom_button.dart';
 
 import '../../model/cart_model.dart';
@@ -15,6 +17,9 @@ class CheckOutScreen extends StatefulWidget {
 class _CheckOutScreenState extends State<CheckOutScreen> {
   double totalPrice = 0.0;
 
+  List<Cart> totalPriceList = [];
+
+  List<Cart> cartList = [];
 
   @override
   void initState() {
@@ -23,15 +28,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   }
 
   Future<void> calculateTotalPrice() async {
+    List<Cart> cartTotalPriceList =
+        await FirebaseServicies().getTotalPriceForCheckOut();
 
-    print("11111111111111111111");
+    totalPriceList = cartTotalPriceList;
 
+    calculateTotalSum();
+  }
 
-        FirebaseServicies().cartItemsForTotalPrice();
-
-
-
-
+  void calculateTotalSum() {
+    setState(() {
+      totalPrice = totalPriceList.fold(
+          0.0, (previousValue, element) => previousValue + element.totalPrice);
+    });
   }
 
   @override
@@ -58,14 +67,22 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             title: "PlaceOrder : $totalPrice",
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
-            callback: () {},
+            callback: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddressListScreen(
+                      orderData: OrderData(cartItems: cartList,totalAmount: totalPrice),
+                    ),
+                  ));
+            },
             isLoading: false),
       ),
     );
   }
 
   Widget _buildCartList(List<Cart> cartItems) {
-    // cartList = cartItems;
+     cartList = cartItems;
     return ListView.builder(
       padding: const EdgeInsets.all(15),
       itemCount: cartItems.length,
